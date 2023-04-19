@@ -215,12 +215,18 @@ const saveInput = document.querySelector('.save-container input');
 const libraryContainer = document.querySelector('.library-container');
 const libraryBtn = document.querySelector('.library');
 const closeLibraryBtn = document.querySelector(".close-library");
+const clearBtn = document.querySelector(".clear");
 
 saveBtn.addEventListener('click', openPalette);
 closeSave.addEventListener('click', closePalette);
 submitSave.addEventListener("click", savePalette);
 libraryBtn.addEventListener('click', openLibrary);
 closeLibraryBtn.addEventListener('click', closeLibrary);
+clearBtn.addEventListener('click', clear);
+
+function clear(e){
+    localStorage.clear();
+}
 
 function openPalette(e){
     const popup = saveContainer.children[0];
@@ -241,12 +247,19 @@ function savePalette(e) {
       colors.push(hex.innerText);
     });
     //Generate Object
-    let paletteNr = savedPalettes.length;
+    let paletteNr;
+    const paletteObjects = JSON.parse(localStorage.getItem("palettes"));
+    if (paletteObjects) {
+        paletteNr = paletteObjects.length;
+    } else {
+        paletteNr = savedPalettes.length;
+    }
+
     const paletteObj = {name, colors, nr: paletteNr}
     savedPalettes.push(paletteObj);
     //Save to local storage
     saveToLocal(paletteObj);
-    saveInput.value = '';
+    saveInput.value = "";
     //Generate the plaette for Library
     const palette = document.createElement('div');
     palette.classList.add('custom-palette');
@@ -306,11 +319,12 @@ function closeLibrary() {
     libraryContainer.classList.remove("active");
     popup.classList.remove("active");
 }
-function getLocal(){
-    if(localStorage.getItem('palette') ===null){
-        localStorage = [];
+function getLocal() {
+    if (localStorage.getItem('palettes') === null) {
+        localPalettes = [];
     }else{
         const paletteObjects = JSON.parse(localStorage.getItem('palettes'));
+
         paletteObjects.forEach(paletteObj => {
             const palette = document.createElement('div');
             palette.classList.add('custom-palette');
@@ -333,7 +347,7 @@ function getLocal(){
                 closeLibrary();
                 const paletteIndex = e.target.classList[1];
                 initialColors = [];
-                savedPalettes[paletteIndex].colors.forEach((color, index) => {
+                paletteObjects[paletteIndex].colors.forEach((color, index) => {
                     initialColors.push(color);
                     colorDivs[index].style.backgroundColor = color;
                     const text = colorDivs[index].children[0];
